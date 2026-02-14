@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Feedback System{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1><i class="fas fa-chart-line"></i> Feedback Dashboard</h1>
+        <p>Get insights into all received feedback at a glance</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon total">
+                <i class="fas fa-comments"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Total Feedback</h3>
+                <p class="stat-value">{{ total_feedback }}</p>
+                <span class="stat-label">submitted responses</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon rating">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Average Rating</h3>
+                <p class="stat-value">{{ average_rating }}</p>
+                <span class="stat-label">out of 5 stars</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon feedback">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3>Feedback Count</h3>
+                <p class="stat-value">{{ feedback_count }}</p>
+                <span class="stat-label">total responses received</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="dashboard-card">
+            <h2><i class="fas fa-chart-bar"></i> Rating Distribution</h2>
+            <div class="chart-container">
+                <canvas id="ratingChart"></canvas>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <h2><i class="fas fa-graduation-cap"></i> Feedback by Department</h2>
+            <div class="department-list">
+                {% for stat in department_stats %}
+                    <div class="department-item">
+                        <div class="dept-bar">
+                            <span class="dept-name">
+                                {% if stat.department == 'IT' %}IT{% elif stat.department == 'CS' %}CS{% elif stat.department == 'ECE' %}ECE{% elif stat.department == 'ME' %}ME{% elif stat.department == 'CE' %}CE{% elif stat.department == 'EE' %}EE{% else %}Other{% endif %}
+                            </span>
+                            <div class="progress-bar">
+                                <div class="progress" style="width: {% widthratio stat.count total_feedback 100 %}%"></div>
+                            </div>
+                            <span class="dept-count">{{ stat.count }}</span>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="no-data"><i class="fas fa-inbox"></i> No feedback yet</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-card recent-feedback">
+        <div class="card-header">
+            <h2><i class="fas fa-history"></i> Recent Feedback</h2>
+            <a href="{% url 'feedback_management' %}" class="link-btn">View All →</a>
+        </div>
+        <div class="feedback-table-wrapper">
+            {% if recent_feedback %}
+                <table class="feedback-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Department</th>
+                            <th>Subject/Faculty</th>
+                            <th>Rating</th>
+                            <th>Message</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for feedback in recent_feedback %}
+                            <tr class="feedback-row">
+                                <td class="student-cell">
+                                    {% if feedback.is_anonymous %}
+                                        <i class="fas fa-mask"></i> Anonymous
+                                    {% else %}
+                                        <i class="fas fa-user-circle"></i> {{ feedback.student_name }}
+                                    {% endif %}
+                                </td>
+                                <td class="dept-cell">
+                                    <span class="badge">{{ feedback.get_department_display }}</span>
+                                </td>
+                                <td class="subject-cell">{{ feedback.subject_or_faculty }}</td>
+                                <td class="rating-cell">
+                                    <span class="rating-badge r{{ feedback.rating }}">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= feedback.rating %}
+                                                <i class="fas fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </span>
+                                </td>
+                                <td class="message-cell">
+                                    <span class="message-preview">{{ feedback.feedback_message|truncatewords:10 }}</span>
+                                </td>
+                                <td class="date-cell">
+                                    <small>{{ feedback.created_at|date:"M d, Y" }}</small>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>No feedback received yet</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ratingData = {{ rating_distribution|safe }};
+
+    if (ratingData && Object.keys(ratingData).length > 0) {
+        const ctx = document.getElementById('ratingChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['1 ★', '2 ★', '3 ★', '4 ★', '5 ★'],
+                datasets: [{
+                    label: 'Number of Feedbacks',
+                    data: [
+                        ratingData[1] || 0,
+                        ratingData[2] || 0,
+                        ratingData[3] || 0,
+                        ratingData[4] || 0,
+                        ratingData[5] || 0
+                    ],
+                    backgroundColor: [
+                        '#FF6B6B',
+                        '#FFA500',
+                        '#FFD93D',
+                        '#6BCF7F',
+                        '#4ECDC4'
+                    ],
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

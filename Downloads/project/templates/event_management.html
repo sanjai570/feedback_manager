@@ -1,0 +1,380 @@
+{% extends 'base.html' %}
+
+{% block title %}Event Management - Event Feedback System{% endblock %}
+
+{% block content %}
+<div class="management-container">
+    <!-- Header -->
+    <div class="management-header">
+        <div class="header-content">
+            <h1>
+                <i class="fas fa-calendar"></i>
+                Event Management
+            </h1>
+            <p>Create, edit, and manage college events</p>
+        </div>
+        <a href="{% url 'event_create' %}" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Create New Event
+        </a>
+    </div>
+
+    <!-- Events Table -->
+    <div class="table-container">
+        {% if page_obj %}
+            <table class="events-table">
+                <thead>
+                    <tr>
+                        <th>Event Title</th>
+                        <th>Date & Time</th>
+                        <th>Venue</th>
+                        <th>Feedbacks</th>
+                        <th>Avg Rating</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in page_obj %}
+                        <tr>
+                            <td>
+                                <div class="event-title">
+                                    {% if event.image %}
+                                        <img src="{{ event.image.url }}" alt="{{ event.title }}" class="event-thumb">
+                                    {% else %}
+                                        <div class="event-thumb-placeholder">
+                                            <i class="fas fa-calendar"></i>
+                                        </div>
+                                    {% endif %}
+                                    <span>{{ event.title }}</span>
+                                </div>
+                            </td>
+                            <td>{{ event.event_date|date:"M d, Y g:i A" }}</td>
+                            <td>{{ event.venue }}</td>
+                            <td>
+                                <span class="badge">{{ event.feedback_count }}</span>
+                            </td>
+                            <td>
+                                {% if event.avg_rating %}
+                                    <span class="rating-badge">⭐ {{ event.avg_rating|floatformat:1 }}</span>
+                                {% else %}
+                                    <span class="rating-badge">No ratings</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{% url 'event_feedback' event.id %}" class="btn btn-small btn-info" title="View Feedback">
+                                        <i class="fas fa-chart-bar"></i>
+                                    </a>
+                                    <a href="{% url 'event_edit' event.id %}" class="btn btn-small btn-warning" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{% url 'event_delete' event.id %}" class="btn btn-small btn-danger" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            {% if page_obj.paginator.num_pages > 1 %}
+                <div class="pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1" class="btn btn-outline">
+                            <i class="fas fa-chevron-left"></i> First
+                        </a>
+                        <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </a>
+                    {% endif %}
+
+                    <div class="page-numbers">
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <span class="current-page">{{ num }}</span>
+                            {% else %}
+                                <a href="?page={{ num }}" class="page-number">{{ num }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-outline">
+                            Last <i class="fas fa-chevron-right"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="empty-state">
+                <i class="fas fa-calendar"></i>
+                <h3>No Events Found</h3>
+                <p>Create your first event to get started</p>
+                <a href="{% url 'event_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus-circle"></i> Create Event
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .management-container {
+        padding: 40px 20px;
+        background: linear-gradient(to bottom, #f8f9fa 0%, #fff 100%);
+        min-height: calc(100vh - 120px);
+    }
+
+    .management-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .management-header h1 {
+        font-size: 32px;
+        margin: 0;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .management-header p {
+        margin: 0;
+        color: #666;
+        font-size: 14px;
+        flex: 0 0 100%;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-small {
+        padding: 6px 10px;
+        font-size: 12px;
+        border-radius: 4px;
+    }
+
+    .btn-info {
+        background: #3498db;
+        color: white;
+    }
+
+    .btn-warning {
+        background: #f39c12;
+        color: white;
+    }
+
+    .btn-danger {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .btn-outline {
+        background: white;
+        color: #667eea;
+        border: 1px solid #ddd;
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+
+    .events-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .events-table th,
+    .events-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    .events-table th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #333;
+        font-size: 13px;
+        text-transform: uppercase;
+    }
+
+    .events-table tr:hover {
+        background: #f8f9fa;
+    }
+
+    .event-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .event-thumb {
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        object-fit: cover;
+    }
+
+    .event-thumb-placeholder {
+        width: 40px;
+        height: 40px;
+        border-radius: 6px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+    }
+
+    .badge {
+        display: inline-block;
+        background: #667eea;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .rating-badge {
+        display: inline-block;
+        background: #fff3cd;
+        color: #856404;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        padding: 20px;
+        background: #f8f9fa;
+        border-top: 1px solid #eee;
+    }
+
+    .page-numbers {
+        display: flex;
+        gap: 5px;
+    }
+
+    .page-number,
+    .current-page {
+        padding: 6px 10px;
+        border-radius: 4px;
+        font-size: 13px;
+    }
+
+    .page-number {
+        background: white;
+        color: #667eea;
+        text-decoration: none;
+        border: 1px solid #ddd;
+        cursor: pointer;
+    }
+
+    .page-number:hover {
+        background: #667eea;
+        color: white;
+    }
+
+    .current-page {
+        background: #667eea;
+        color: white;
+    }
+
+    .empty-state {
+        padding: 60px 20px;
+        text-align: center;
+        color: #999;
+    }
+
+    .empty-state i {
+        font-size: 64px;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        margin: 0 0 10px 0;
+        font-size: 20px;
+        color: #666;
+    }
+
+    .empty-state p {
+        margin: 0 0 20px 0;
+        color: #999;
+    }
+
+    @media (max-width: 768px) {
+        .events-table {
+            font-size: 12px;
+        }
+
+        .events-table th,
+        .events-table td {
+            padding: 10px;
+        }
+
+        .event-title span {
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .management-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .btn-primary {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}

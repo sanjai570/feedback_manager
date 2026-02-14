@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Feedback - Feedback System{% endblock %}
+
+{% block content %}
+<div class="feedback-container">
+    <div class="feedback-header">
+        <h1>📝 Share Your Feedback</h1>
+        <p>Your feedback helps us improve. All responses are valuable and confidential.</p>
+    </div>
+
+    <div class="feedback-form-wrapper">
+        <div class="form-card">
+            {% if form.non_field_errors %}
+            <div class="alert alert-error">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" id="feedbackForm" class="modern-form">
+                {% csrf_token %}
+
+                <div class="form-section">
+                    <h3 class="section-title">Your Information</h3>
+
+                    <div class="form-group">
+                        <label for="{{ form.student_name.id_for_label }}">
+                            <i class="fas fa-user"></i> {{ form.student_name.label }}
+                        </label>
+                        {{ form.student_name }}
+                        {% if form.student_name.errors %}
+                            <span class="error-message">{{ form.student_name.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ form.department.id_for_label }}">
+                                <i class="fas fa-graduation-cap"></i> {{ form.department.label }}
+                            </label>
+                            {{ form.department }}
+                            {% if form.department.errors %}
+                                <span class="error-message">{{ form.department.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ form.year.id_for_label }}">
+                                <i class="fas fa-calendar-alt"></i> {{ form.year.label }}
+                            </label>
+                            {{ form.year }}
+                            {% if form.year.errors %}
+                                <span class="error-message">{{ form.year.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.subject_or_faculty.id_for_label }}">
+                            <i class="fas fa-book"></i> {{ form.subject_or_faculty.label }}
+                        </label>
+                        {{ form.subject_or_faculty }}
+                        {% if form.subject_or_faculty.errors %}
+                            <span class="error-message">{{ form.subject_or_faculty.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">Your Rating</h3>
+
+                    <div class="rating-section">
+                        <label class="rating-label">{{ form.rating.label }}</label>
+                        <div class="rating-widget">
+                            {% for option in form.rating %}
+                                <label class="rating-option">
+                                    {{ option.tag }}
+                                    <span class="star-display" data-rating="{{ option.choice_value }}">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= option.choice_value|add:"0" %}
+                                                <i class="fas fa-star"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                        {% if form.rating.errors %}
+                            <span class="error-message">{{ form.rating.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">Your Feedback</h3>
+
+                    <div class="form-group">
+                        <label for="{{ form.feedback_message.id_for_label }}">
+                            <i class="fas fa-message"></i> {{ form.feedback_message.label }}
+                        </label>
+                        {{ form.feedback_message }}
+                        <span class="char-count" id="charCount">0 / 5000 characters</span>
+                        {% if form.feedback_message.errors %}
+                            <span class="error-message">{{ form.feedback_message.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label for="{{ form.is_anonymous.id_for_label }}" class="checkbox-label">
+                            {{ form.is_anonymous }}
+                            <span class="checkbox-text">
+                                <i class="fas fa-mask"></i> Submit Anonymously
+                            </span>
+                        </label>
+                        <p class="checkbox-hint">Your name will be hidden if you check this option.</p>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-large" id="submitBtn">
+                        <i class="fas fa-paper-plane"></i> Submit Feedback
+                    </button>
+                    <button type="reset" class="btn btn-secondary btn-large">
+                        <i class="fas fa-redo"></i> Clear Form
+                    </button>
+                </div>
+            </form>
+
+            <div class="form-info">
+                <p><i class="fas fa-info-circle"></i> <strong>Note:</strong> Your feedback is important to us and will help us provide better education and services.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('feedbackForm');
+    const feedbackMessage = document.getElementById('id_feedback_message');
+    const charCount = document.getElementById('charCount');
+    const submitBtn = document.getElementById('submitBtn');
+    const ratingInputs = document.querySelectorAll('.rating-radio');
+
+    // Character counter
+    if (feedbackMessage) {
+        feedbackMessage.addEventListener('input', function() {
+            const count = this.value.length;
+            charCount.textContent = count + ' / 5000 characters';
+            if (count > 5000) {
+                this.value = this.value.substring(0, 5000);
+            }
+        });
+    }
+
+    // Rating star display
+    ratingInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            updateRatingDisplay();
+        });
+    });
+
+    function updateRatingDisplay() {
+        const selected = document.querySelector('.rating-radio:checked');
+        if (selected) {
+            const value = selected.value;
+            const display = document.querySelector(`[data-rating="${value}"]`);
+            if (display) {
+                display.classList.add('selected');
+            }
+        }
+    }
+
+    // Form submission animation
+    form.addEventListener('submit', function(e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            return;
+        }
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+    });
+});
+</script>
+{% endblock %}

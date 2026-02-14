@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Event-Based Feedback System{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div id="toast-container"></div>
+
+    {% if user.is_authenticated %}
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-calendar-check"></i>
+                <span>Event Feedback</span>
+            </div>
+            <ul class="nav-menu">
+                {% if user.is_staff or user.is_superuser %}
+                    {# ADMIN NAVIGATION #}
+                    <li class="nav-item">
+                        <a href="{% url 'admin_dashboard' %}" class="nav-link {% if 'admin/dashboard' in request.path %}active{% endif %}">
+                            <i class="fas fa-chart-line"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'event_management' %}" class="nav-link {% if 'admin/events' in request.path and 'feedback' not in request.path %}active{% endif %}">
+                            <i class="fas fa-calendar"></i> Manage Events
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'admin_logout' %}" class="nav-link logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                {% else %}
+                    {# STUDENT NAVIGATION #}
+                    <li class="nav-item">
+                        <a href="{% url 'student_dashboard' %}" class="nav-link {% if 'student/dashboard' in request.path %}active{% endif %}">
+                            <i class="fas fa-home"></i> Events
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'student_logout' %}" class="nav-link logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+            <div class="user-info">
+                <span class="user-name">
+                    <i class="fas fa-user-circle"></i> {{ user.first_name|default:user.username }}
+                </span>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    {% if messages %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            {% for message in messages %}
+                showToast("{{ message }}", "{{ message.tags|default:'info' }}");
+            {% endfor %}
+        });
+    </script>
+    {% endif %}
+
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Event-Based Feedback System. All rights reserved.</p>
+    </footer>
+
+    <script src="/static/js/script.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

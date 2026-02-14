@@ -1,0 +1,435 @@
+{% extends 'base.html' %}
+
+{% block title %}Events Dashboard - Event Feedback System{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Header Section -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h1>
+                <i class="fas fa-calendar-check"></i>
+                All Events
+            </h1>
+            <p>Register your attendance and provide feedback for events you participated in</p>
+        </div>
+        <div class="header-stats">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Total Events</span>
+                    <span class="stat-value">{{ page_obj.paginator.count }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Events Grid -->
+    <div class="events-grid">
+        {% for event in page_obj %}
+            <div class="event-card">
+                <div class="event-header">
+                    {% if event.image %}
+                        <img src="{{ event.image.url }}" alt="{{ event.title }}">
+                    {% else %}
+                        <div class="event-placeholder">
+                            <i class="fas fa-image"></i>
+                        </div>
+                    {% endif %}
+                    {% if event.has_feedback %}
+                        <span class="event-badge feedback-given">
+                            <i class="fas fa-check"></i> Feedback Given
+                        </span>
+                    {% else %}
+                        <span class="event-badge pending">
+                            <i class="fas fa-clock"></i> Pending
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="event-body">
+                    <h3>{{ event.title }}</h3>
+                    <p class="event-description">{{ event.description|truncatewords:20 }}</p>
+
+                    <div class="event-details">
+                        <div class="detail-item">
+                            <i class="fas fa-calendar-days"></i>
+                            <span>{{ event.event_date|date:"M d, Y - g:i A" }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>{{ event.venue }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-user"></i>
+                            <span>{{ event.organizer }}</span>
+                        </div>
+                    </div>
+
+                    {% if event.has_feedback %}
+                        <p class="feedback-note">
+                            <i class="fas fa-check-circle"></i>
+                            Thank you for your feedback!
+                        </p>
+                    {% endif %}
+                </div>
+
+                <div class="event-footer">
+                    <a href="{% url 'event_detail' event.id %}" class="btn btn-primary">
+                        {% if event.has_feedback %}
+                            <i class="fas fa-eye"></i> View Feedback
+                        {% else %}
+                            <i class="fas fa-edit"></i> Give Feedback
+                        {% endif %}
+                    </a>
+                </div>
+            </div>
+        {% empty %}
+            <div class="empty-state">
+                <i class="fas fa-calendar"></i>
+                <h3>No Events Available</h3>
+                <p>Events will be displayed here once they are created</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.paginator.num_pages > 1 %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page=1" class="btn btn-outline">
+                    <i class="fas fa-chevron-left"></i> First
+                </a>
+                <a href="?page={{ page_obj.previous_page_number }}" class="btn btn-outline">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </a>
+            {% endif %}
+
+            <div class="page-numbers">
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <span class="current-page">{{ num }}</span>
+                    {% else %}
+                        <a href="?page={{ num }}" class="page-number">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="btn btn-outline">
+                    Next <i class="fas fa-chevron-right"></i>
+                </a>
+                <a href="?page={{ page_obj.paginator.num_pages }}" class="btn btn-outline">
+                    Last <i class="fas fa-chevron-right"></i>
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .dashboard-container {
+        padding: 40px 20px;
+        background: linear-gradient(to bottom, #f8f9fa 0%, #fff 100%);
+    }
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .header-content h1 {
+        font-size: 32px;
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+
+    .header-content p {
+        color: #666;
+        margin: 0;
+        font-size: 14px;
+    }
+
+    .header-stats {
+        display: flex;
+        gap: 15px;
+    }
+
+    .stat-card {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        background: white;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-icon {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+
+    .stat-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-label {
+        font-size: 12px;
+        color: #999;
+        text-transform: uppercase;
+    }
+
+    .stat-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .events-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .event-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+    }
+
+    .event-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .event-header {
+        position: relative;
+        height: 180px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        overflow: hidden;
+    }
+
+    .event-header img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .event-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 48px;
+    }
+
+    .event-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .event-badge.feedback-given {
+        background: #2ecc71;
+        color: white;
+    }
+
+    .event-badge.pending {
+        background: #f39c12;
+        color: white;
+    }
+
+    .event-body {
+        padding: 20px;
+    }
+
+    .event-body h3 {
+        margin: 0 0 10px 0;
+        font-size: 18px;
+        color: #333;
+    }
+
+    .event-description {
+        color: #666;
+        font-size: 13px;
+        margin: 0 0 15px 0;
+        line-height: 1.5;
+    }
+
+    .event-details {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #666;
+        font-size: 13px;
+    }
+
+    .detail-item i {
+        color: #667eea;
+        width: 16px;
+    }
+
+    .feedback-note {
+        margin-top: 15px;
+        padding: 10px;
+        background: #d4edda;
+        color: #155724;
+        border-radius: 6px;
+        font-size: 12px;
+        margin-bottom: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .event-footer {
+        padding: 0 20px 20px 20px;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .empty-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+    }
+
+    .empty-state i {
+        font-size: 64px;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+
+    .empty-state h3 {
+        margin: 0 0 10px 0;
+        font-size: 20px;
+        color: #666;
+    }
+
+    .empty-state p {
+        margin: 0;
+        color: #999;
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin-top: 40px;
+    }
+
+    .page-numbers {
+        display: flex;
+        gap: 5px;
+    }
+
+    .page-number,
+    .current-page {
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+
+    .page-number {
+        background: white;
+        color: #667eea;
+        text-decoration: none;
+        border: 1px solid #ddd;
+        cursor: pointer;
+    }
+
+    .page-number:hover {
+        background: #667eea;
+        color: white;
+    }
+
+    .current-page {
+        background: #667eea;
+        color: white;
+    }
+
+    .btn-outline {
+        background: white;
+        color: #667eea;
+        border: 1px solid #ddd;
+    }
+
+    .btn-outline:hover {
+        background: #667eea;
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .events-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .dashboard-header {
+            flex-direction: column;
+        }
+
+        .header-stats {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

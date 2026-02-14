@@ -1,0 +1,318 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if event %}Edit{% else %}Create{% endif %} Event{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-section">
+        <div class="form-header">
+            <a href="{% url 'event_management' %}" class="back-button">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <h1>
+                {% if event %}
+                    <i class="fas fa-edit"></i> Edit Event
+                {% else %}
+                    <i class="fas fa-plus-circle"></i> Create Event
+                {% endif %}
+            </h1>
+            <p>{% if event %}Update event details{% else %}Create a new college event{% endif %}</p>
+        </div>
+
+        <form method="POST" enctype="multipart/form-data" class="event-form">
+            {% csrf_token %}
+
+            <!-- Title -->
+            <div class="form-group">
+                <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <span class="form-error">{{ form.title.errors.0 }}</span>
+                {% endif %}
+                <small class="help-text">Event name or title</small>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+                <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <span class="form-error">{{ form.description.errors.0 }}</span>
+                {% endif %}
+                <small class="help-text">Detailed description of the event</small>
+            </div>
+
+            <!-- Event Date -->
+            <div class="form-group">
+                <label for="{{ form.event_date.id_for_label }}">{{ form.event_date.label }}</label>
+                {{ form.event_date }}
+                {% if form.event_date.errors %}
+                    <span class="form-error">{{ form.event_date.errors.0 }}</span>
+                {% endif %}
+                <small class="help-text">Date and time of the event</small>
+            </div>
+
+            <!-- Venue -->
+            <div class="form-group">
+                <label for="{{ form.venue.id_for_label }}">{{ form.venue.label }}</label>
+                {{ form.venue }}
+                {% if form.venue.errors %}
+                    <span class="form-error">{{ form.venue.errors.0 }}</span>
+                {% endif %}
+                <small class="help-text">Location or venue of the event</small>
+            </div>
+
+            <!-- Organizer -->
+            <div class="form-group">
+                <label for="{{ form.organizer.id_for_label }}">{{ form.organizer.label }}</label>
+                {{ form.organizer }}
+                {% if form.organizer.errors %}
+                    <span class="form-error">{{ form.organizer.errors.0 }}</span>
+                {% endif %}
+                <small class="help-text">Name of the person/department organizing</small>
+            </div>
+
+            <!-- Image -->
+            <div class="form-group">
+                <label for="{{ form.image.id_for_label }}">{{ form.image.label }}</label>
+                {% if event and event.image %}
+                    <div class="image-preview">
+                        <img src="{{ event.image.url }}" alt="Event Image">
+                        <p>Current Image</p>
+                    </div>
+                {% endif %}
+                {{ form.image }}
+                {% if form.image.errors %}
+                    <span class="form-error">{{ form.image.errors.0 }}</span>
+                {% endif %}
+                <small class="help-text">Upload an event poster or image (optional)</small>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    {% if event %}Update Event{% else %}Create Event{% endif %}
+                </button>
+                <a href="{% url 'event_management' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-container {
+        padding: 40px 20px;
+        background: linear-gradient(to bottom, #f8f9fa 0%, #fff 100%);
+        min-height: calc(100vh - 120px);
+    }
+
+    .form-section {
+        max-width: 700px;
+        margin: 0 auto;
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-header {
+        margin-bottom: 30px;
+    }
+
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: #f0f3ff;
+        color: #667eea;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .back-button:hover {
+        background: #667eea;
+        color: white;
+    }
+
+    .form-header h1 {
+        font-size: 28px;
+        margin: 0 0 10px 0;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .form-header h1 i {
+        color: #667eea;
+    }
+
+    .form-header p {
+        margin: 0;
+        color: #666;
+        font-size: 14px;
+    }
+
+    .event-form {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #333;
+        font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        font-family: inherit;
+        transition: all 0.3s ease;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="datetime-local"],
+    .form-group textarea {
+        width: 100%;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 120px;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .image-preview {
+        margin-bottom: 15px;
+        text-align: center;
+    }
+
+    .image-preview img {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .image-preview p {
+        margin: 10px 0 0 0;
+        color: #666;
+        font-size: 13px;
+    }
+
+    .form-group input[type="file"] {
+        padding: 10px;
+        border: 2px dashed #ddd;
+        border-radius: 6px;
+        background: #f9f9f9;
+        cursor: pointer;
+    }
+
+    .form-group input[type="file"]:hover {
+        border-color: #667eea;
+        background: #f0f3ff;
+    }
+
+    .help-text {
+        font-size: 12px;
+        color: #999;
+        margin-top: 8px;
+    }
+
+    .form-error {
+        color: #e74c3c;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        padding-top: 25px;
+        border-top: 1px solid #eee;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: #667eea;
+        border: 2px solid #667eea;
+        flex: 1;
+        justify-content: center;
+    }
+
+    .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .form-section {
+            padding: 25px;
+        }
+
+        .form-header h1 {
+            font-size: 22px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,350 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Event Feedback System{% endblock %}
+
+{% block content %}
+<div class="home-container">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>Event-Based Feedback Management System</h1>
+            <p>Collect valuable feedback from event attendees with ease</p>
+            <div class="hero-buttons">
+                {% if user.is_authenticated %}
+                    {% if user.is_staff or user.is_superuser %}
+                        <a href="{% url 'admin_dashboard' %}" class="btn btn-primary btn-large">
+                            <i class="fas fa-chart-line"></i> Admin Dashboard
+                        </a>
+                        <a href="{% url 'event_management' %}" class="btn btn-secondary btn-large">
+                            <i class="fas fa-calendar"></i> Manage Events
+                        </a>
+                    {% else %}
+                        <a href="{% url 'student_dashboard' %}" class="btn btn-primary btn-large">
+                            <i class="fas fa-calendar-check"></i> View Events
+                        </a>
+                    {% endif %}
+                    {% if user.is_staff or user.is_superuser %}
+                        <a href="{% url 'admin_logout' %}" class="btn btn-logout btn-large">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    {% else %}
+                        <a href="{% url 'student_logout' %}" class="btn btn-logout btn-large">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'student_register' %}" class="btn btn-primary btn-large">
+                        <i class="fas fa-user-plus"></i> Student Registration
+                    </a>
+                    <a href="{% url 'student_login' %}" class="btn btn-secondary btn-large">
+                        <i class="fas fa-sign-in-alt"></i> Student Login
+                    </a>
+                    <a href="{% url 'admin_login' %}" class="btn btn-dark btn-large">
+                        <i class="fas fa-shield-alt"></i> Admin Login
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    {% if not user.is_authenticated %}
+    <section class="stats-section">
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-number">{{ upcoming_events }}+</span>
+                    <span class="stat-label">Upcoming Events</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-number">{{ total_feedback }}+</span>
+                    <span class="stat-label">Feedback Collected</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-number">1000+</span>
+                    <span class="stat-label">Active Students</span>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Features Section -->
+    {% if not user.is_authenticated %}
+    <section class="features-section">
+        <h2>How It Works</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-calendar-plus"></i>
+                </div>
+                <h3>Create Events</h3>
+                <p>Admins can easily create and schedule college events with detailed information</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-user-check"></i>
+                </div>
+                <h3>Register & Attend</h3>
+                <p>Students register and acknowledge their attendance at events</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <h3>Give Feedback</h3>
+                <p>Provide ratings and detailed feedback for events you attended</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h3>View Analytics</h3>
+                <p>Admins can analyze event-wise feedback and generate insights</p>
+            </div>
+        </div>
+    </section>
+    {% endif %}
+</div>
+
+<style>
+    .home-container {
+        padding: 0;
+    }
+
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 80px 20px;
+        text-align: center;
+        color: white;
+    }
+
+    .hero-content h1 {
+        font-size: 48px;
+        margin: 0 0 15px 0;
+        font-weight: bold;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .hero-content p {
+        font-size: 20px;
+        margin: 0 0 40px 0;
+        opacity: 0.95;
+    }
+
+    .hero-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 12px 28px;
+        border: none;
+        border-radius: 6px;
+        font-size: 15px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-large {
+        padding: 14px 32px;
+        font-size: 16px;
+    }
+
+    .btn-primary {
+        background: white;
+        color: #667eea;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 2px solid white;
+    }
+
+    .btn-secondary:hover {
+        background: white;
+        color: #667eea;
+        transform: translateY(-3px);
+    }
+
+    .btn-dark {
+        background: rgba(0, 0, 0, 0.3);
+        color: white;
+        border: 2px solid white;
+    }
+
+    .btn-dark:hover {
+        background: rgba(0, 0, 0, 0.5);
+        transform: translateY(-3px);
+    }
+
+    .btn-logout {
+        background: rgba(200, 50, 50, 0.8);
+        color: white;
+        border: none;
+    }
+
+    .btn-logout:hover {
+        background: rgba(200, 50, 50, 1);
+        transform: translateY(-3px);
+    }
+
+    .stats-section {
+        background: #f8f9fa;
+        padding: 60px 20px;
+    }
+
+    .stats-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+    }
+
+    .stat-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .stat-number {
+        font-size: 28px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .stat-label {
+        font-size: 13px;
+        color: #999;
+        text-transform: uppercase;
+        font-weight: 500;
+    }
+
+    .features-section {
+        padding: 80px 20px;
+        background: white;
+    }
+
+    .features-section h2 {
+        text-align: center;
+        font-size: 36px;
+        margin-bottom: 50px;
+        color: #333;
+    }
+
+    .features-grid {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+    }
+
+    .feature-card {
+        background: #f8f9fa;
+        padding: 35px;
+        border-radius: 12px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .feature-card:hover {
+        background: white;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        transform: translateY(-5px);
+    }
+
+    .feature-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        margin: 0 auto 20px;
+    }
+
+    .feature-card h3 {
+        font-size: 18px;
+        margin: 0 0 10px 0;
+        color: #333;
+    }
+
+    .feature-card p {
+        color: #666;
+        font-size: 14px;
+        margin: 0;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+        .hero-content h1 {
+            font-size: 32px;
+        }
+
+        .hero-content p {
+            font-size: 16px;
+        }
+
+        .hero-buttons {
+            flex-direction: column;
+        }
+
+        .btn-large {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}

@@ -24,6 +24,9 @@ RUN pip install --upgrade pip && \
 # Copy project
 COPY . .
 
+# Run migrations (if needed)
+RUN python manage.py migrate --noinput || true
+
 # Collect static files
 RUN python manage.py collectstatic --noinput || true
 
@@ -34,5 +37,17 @@ USER appuser
 # Expose port
 EXPOSE 10000
 
-# Run gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:10000", "--workers", "3", "--timeout", "60", "feedback_project.wsgi:application"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import requests; requests.get('http://localhost:10000', headers={'User-Agent': 'HealthCheck'})"
+
+# Run gunicorn with optimized settings
+CMD ["gunicorn", \
+     "--bind", "0.0.0.0:10000", \
+     "--workers", "1", \
+     "--worker-class", "sync", \
+     "--worker-connections", "1000", \
+     "--timeout", "60", \
+     "--access-logfile", "-", \
+     "--error-logfile", "-", \
+     "feedback_project.wsgi:application"]

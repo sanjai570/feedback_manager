@@ -12,21 +12,39 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-your-secret-key-chang
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # ALLOWED_HOSTS configuration with fallback for production
-ALLOWED_HOSTS_STR = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,feedback-manager-f80h.onrender.com,*.onrender.com')
+ALLOWED_HOSTS_STR = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,feedback-manager-f80h.onrender.com,*.onrender.com,0.0.0.0')
 ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_STR.split(',')]
 
 # CSRF and Security Configuration
 CSRF_TRUSTED_ORIGINS = [
     'https://feedback-manager-f80h.onrender.com',
     'https://*.onrender.com',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
 ]
 
 # SSL/HTTPS Configuration for proxy (Render uses reverse proxy)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
 
-SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=True, cast=bool)
-CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=True, cast=bool)
-SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=True, cast=bool)
+# Only enforce SSL in production
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+else:
+    SECURE_SSL_REDIRECT = False
+
+CSRF_COOKIE_SECURE = not DEBUG  # True in production, False in development
+SESSION_COOKIE_SECURE = not DEBUG  # True in production, False in development
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to read CSRF token
+SESSION_COOKIE_HTTPONLY = True
+
+# Additional CSRF and security settings
+CSRF_COOKIE_AGE = 31449600  # One year in seconds
+SESSION_COOKIE_AGE = 1209600  # Two weeks in seconds
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_USE_SESSIONS = False
 
 # Application definition
 INSTALLED_APPS = [

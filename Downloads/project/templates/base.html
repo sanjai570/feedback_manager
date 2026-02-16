@@ -2,10 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Event-Based Feedback Collection System">
+    <meta name="theme-color" content="#4F46E5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>{% block title %}Event-Based Feedback System{% endblock %}</title>
+    
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/responsive-animations.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Preload fonts for better performance -->
+    <link rel="preload" as="font" href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;500;600;700&display=swap" crossorigin>
 </head>
 <body>
     <div id="toast-container"></div>
@@ -76,7 +86,9 @@
         <p>&copy; 2026 Event-Based Feedback System. All rights reserved.</p>
     </footer>
 
+    <!-- Scripts -->
     <script src="/static/js/script.js"></script>
+    <script src="/static/js/responsive-animations.js"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

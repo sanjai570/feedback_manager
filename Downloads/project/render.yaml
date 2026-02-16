@@ -3,12 +3,18 @@ services:
     name: feedback-collection-app
     env: docker
     dockerfilePath: ./Dockerfile
-    branch: Downloads/project
+    branch: main
     envVars:
       - key: DEBUG
         value: "False"
       - key: ALLOWED_HOSTS
-        value: "*"
+        value: "feedback-manager-f80h.onrender.com"
+      - key: CSRF_COOKIE_SECURE
+        value: "True"
+      - key: SESSION_COOKIE_SECURE
+        value: "True"
+      - key: SECURE_SSL_REDIRECT
+        value: "True"
       - key: SECRET_KEY
         scope: run_and_build
         sync: false

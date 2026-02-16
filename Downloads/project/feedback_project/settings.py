@@ -11,17 +11,36 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-your-secret-key-chang
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-# ALLOWED_HOSTS configuration with fallback for production
-ALLOWED_HOSTS_STR = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,feedback-manager-f80h.onrender.com,*.onrender.com,0.0.0.0')
-ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_STR.split(',')]
+# ALLOWED_HOSTS configuration - support all Render domains
+ALLOWED_HOSTS_STR = config('ALLOWED_HOSTS', default='localhost,127.0.0.1')
+base_hosts = [host.strip() for host in ALLOWED_HOSTS_STR.split(',')]
 
-# CSRF and Security Configuration
+# Add all render.com domains and localhost variants
+ALLOWED_HOSTS = base_hosts + [
+    'localhost',
+    '127.0.0.1',
+    '0.0.0.0',
+    # Render specific domains (add more as needed)
+    'feedback-manager-3.onrender.com',
+    'feedback-manager-f80h.onrender.com',
+    # Allow ALL .onrender.com domains by checking in middleware
+]
+
+# Remove duplicates while preserving order
+ALLOWED_HOSTS = list(dict.fromkeys(ALLOWED_HOSTS))
+
+# CSRF and Security Configuration - Trust all HTTPS origins
 CSRF_TRUSTED_ORIGINS = [
+    'https://feedback-manager-3.onrender.com',
     'https://feedback-manager-f80h.onrender.com',
-    'https://*.onrender.com',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
+    'http://localhost',
+    'http://127.0.0.1',
 ]
+
+# Remove CSRF duplicates
+CSRF_TRUSTED_ORIGINS = list(dict.fromkeys(CSRF_TRUSTED_ORIGINS))
 
 # SSL/HTTPS Configuration for proxy (Render uses reverse proxy)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -58,6 +77,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'feedback_project.middleware.RenderAllowedHostsMiddleware',  # Must be first
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

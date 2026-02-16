@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: feedback-collection-app
+    env: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: "*"
+      - key: SECRET_KEY
+        scope: run_and_build
+        sync: false

@@ -3,6 +3,7 @@ services:
     name: feedback-collection-app
     env: docker
     dockerfilePath: ./Dockerfile
+    branch: Downloads/project
     envVars:
       - key: DEBUG
         value: "False"

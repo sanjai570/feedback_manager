@@ -15,6 +15,19 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 ALLOWED_HOSTS_STR = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,feedback-manager-f80h.onrender.com,*.onrender.com')
 ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_STR.split(',')]
 
+# CSRF and Security Configuration
+CSRF_TRUSTED_ORIGINS = [
+    'https://feedback-manager-f80h.onrender.com',
+    'https://*.onrender.com',
+]
+
+# SSL/HTTPS Configuration for proxy (Render uses reverse proxy)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=True, cast=bool)
+CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=True, cast=bool)
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=True, cast=bool)
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
